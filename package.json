@@ -1,0 +1,9 @@
+{
+  "name": "css-custom-properties-shim",
+  "version": "0.0.1",
+  "description": "A shim to provide basic functionality to IE/Edge for changing custom properties at runtime.",
+  "main": "index.js",
+  "repository": "https://github.com/luwes/css-custom-properties-shim",
+  "author": "Wesley Luyten",
+  "license": "MIT"
+}
