@@ -1,4 +1,4 @@
-# CSS Custom Properties Shim
+# CSS Var Shim
 
 A shim to provide basic functionality to IE/Edge for changing custom properties at runtime.
 
