@@ -1,0 +1,1 @@
+window.cssVarMap = {"a":[["color","var(--primary-color)"]]}

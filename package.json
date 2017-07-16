@@ -1,9 +1,18 @@
 {
-  "name": "css-custom-properties-shim",
-  "version": "0.0.1",
-  "description": "A shim to provide basic functionality to IE/Edge for changing custom properties at runtime.",
-  "main": "index.js",
-  "repository": "https://github.com/luwes/css-custom-properties-shim",
-  "author": "Wesley Luyten",
-  "license": "MIT"
+    "name": "css-var-shim",
+    "version": "0.0.1",
+    "description": "A shim to provide basic functionality to IE/Edge for changing custom CSS properties at runtime.",
+    "main": "index.js",
+    "scripts": {
+        "build:css": "postcss -c postcss.config.js -d ./ -o app.css src/css/*.css",
+        "build:js": "uglifyjs src/js/app.js -o css-var-shim.js"
+    },
+    "repository": "https://github.com/luwes/css-var-shim",
+    "author": "Wesley Luyten",
+    "license": "MIT",
+    "devDependencies": {
+        "postcss-cli": "^4.1.0",
+        "postcss-var-map": "^0.0.1",
+        "uglify-js": "^3.0.25"
+    }
 }
