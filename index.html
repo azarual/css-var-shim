@@ -5,53 +5,216 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
     <title>Your Website</title>
     <link rel="stylesheet" href="app.css">
+    <style>
+      body {
+        background: #fff;
+      }
+    </style>
     <script>
-        var cssVarSupport = CSS && CSS.supports && CSS.supports('--a', 0);
+        var cssVarSupport = window.CSS && CSS.supports && CSS.supports('--a', 0);
+        cssVarSupport = false;
         if (!cssVarSupport) {
-
+            var cssVarScript = document.createElement('script');
+            cssVarScript.src = 'css-var-shim.js';
+            cssVarScript.async = false;
+            var firstScript = document.getElementsByTagName('script')[0];
+            firstScript.parentNode.insertBefore(cssVarScript, firstScript);
         }
     </script>
-    <script src="css-var-shim.js"></script>
+    <script>
+
+        // Auxiliary method. Retrieves and sanitises the value of a custom property.
+        var getVariable = function(styles, propertyName) {
+          return String(styles.getPropertyValue(propertyName)).trim();
+        };
+
+        // Auxiliary method. Sets the value of a custom property at the document level.
+        var setDocumentVariable = function(propertyName, value) {
+            //cssVar(propertyName, value, document.documentElement);
+            //cssVar.set(propertyName, value);
+            document.documentElement.style.setProperty(propertyName, value);
+        };
+
+        // Sets the document color scheme to the color scheme of the clicked element.
+        // This illustrates how it's easy to make a change affecting a large number of
+        // elements by simply changing a few custom properties.
+        var chooseDefaultColor = function(event) {
+          // Get the styles for the event target (the clicked button), so we can see
+          // what its custom properties are set to.
+          var styles = getComputedStyle(event.target);
+
+          // Get the values for the button's colours...
+          var primary = getVariable(styles, '--primary-color');
+          var text = getVariable(styles, '--primary-color-text');
+          // ... and apply them to the document.
+          setDocumentVariable('--primary-color', primary);
+          setDocumentVariable('--primary-color-text', text);
+        };
+
+        // Initialise page controls.
+        window.addEventListener('load', function() {
+
+          document.documentElement.style.setProperty('--primary-color', '#099010');
+
+          // Get the styles for the document.
+          // This is where we've chosen to store all the global variables we use.
+          var styles = getComputedStyle(document.documentElement);
+
+          var quantum = document.getElementById('quantum');
+          var gutter = document.getElementById('gutter');
+          var columns = document.getElementById('columns');
+
+          // Set up event handlers for buttons.
+          var buttons = document.querySelectorAll('.picker-button');
+          for (var i = 0; i < buttons.length; i++) {
+            buttons[i].addEventListener('click', chooseDefaultColor);
+          }
+
+          // Retrieve initial custom property values and update controls.
+          quantum.value = getVariable(styles, '--spacing-unit').replace('px', '');
+          gutter.value = getVariable(styles, '--margins');
+          columns.value = getVariable(styles, '--grid-columns');
+
+          // Set up event handlers for having the sliders update the custom properties
+          // at the document level.
+          quantum.addEventListener('input', function() {
+            setDocumentVariable('--spacing-unit', quantum.value + 'px');
+          });
+
+          gutter.addEventListener('input', function() {
+            setDocumentVariable('--margins', gutter.value);
+          });
+
+          columns.addEventListener('input', function() {
+            setDocumentVariable('--grid-columns', columns.value);
+          });
+        });
+
+    </script>
 </head>
 <body>
-
-    <header>
-        <nav>
-            <ul>
-                <li>Your menu</li>
-            </ul>
-        </nav>
-    </header>
-
-    <section>
-
-        <article>
-            <header>
-                <h2>Article title</h2>
-                <p>Posted on <time datetime="2009-09-04T16:31:24+02:00">September 4th 2009</time> by <a href="#">Writer</a> - <a href="#comments">6 comments</a></p>
-            </header>
-            <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
-        </article>
-
-        <article>
-            <header>
-                <h2>Article title</h2>
-                <p>Posted on <time datetime="2009-09-04T16:31:24+02:00">September 4th 2009</time> by <a href="#">Writer</a> - <a href="#comments">6 comments</a></p>
-            </header>
-            <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
-        </article>
-
-    </section>
-
-    <aside>
-        <h2>About section</h2>
-        <p>Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.</p>
-    </aside>
-
-    <footer>
-        <p>Copyright 2009 Your name</p>
-    </footer>
-
+    <div id="output" class="output">
+        <div id="content">
+            <div class="header">
+                <div class="title">CSS Variable Demo</div>
+                <div class="shade"></div>
+                <div class="controls">
+                    <p class="control">
+                        <span class="control-key">Spacing unit:</span>
+                        <input class="control-value" type="range" id="quantum" min="4" max="8" step="1">
+                    </p>
+                    <p class="control">
+                        <span class="control-key">Columns:</span>
+                        <input class="control-value" type="range" id="columns" min="1" max="4" step="1">
+                    </p>
+                    <p class="control">
+                        <span class="control-key">Margins:</span>
+                        <input class="control-value" type="range" id="gutter" min="1" max="5" step="1">
+                    </p>
+                </div>
+            </div>
+            <div class="grid">
+                <div class="cell" style="--primary-color: #F44336; --primary-color-text: #FFF;">
+                    <header class="cell-header">
+                        <div class="cell-title">
+                            Red
+                        </div>
+                    </header>
+                    <main class="cell-content">
+                        Click the buttons on the cards to set the default color scheme for the whole sample.
+                    </main>
+                    <div class="cell-actions">
+                        <button class="picker-button">
+                            Use this color
+                            <div class="ripple"></div>
+                        </button>
+                    </div>
+                </div>
+                <div class="cell" style="--primary-color: #E91E63; --primary-color-text: #FFF;">
+                    <header class="cell-header">
+                        <div class="cell-title">
+                            Pink
+                        </div>
+                    </header>
+                    <main class="cell-content">
+                        The colors on the cards are not affected because they're individually defined at the card level, and thus prioritised according to standard CSS rules.
+                    </main>
+                    <div class="cell-actions">
+                        <button class="picker-button">
+                            Use this color
+                            <div class="ripple"></div>
+                        </button>
+                    </div>
+                </div>
+                <div class="cell" style="--primary-color: #9C27B0; --primary-color-text: #FFF;">
+                    <header class="cell-header">
+                        <div class="cell-title">
+                            Purple
+                        </div>
+                    </header>
+                    <main class="cell-content">
+                        Use the controls above to adjust some properties that affect the entire page.
+                    </main>
+                    <div class="cell-actions">
+                        <button class="picker-button">
+                            Use this color
+                            <div class="ripple"></div>
+                        </button>
+                    </div>
+                </div>
+                <div class="cell" style="--primary-color: #00BCD4; --primary-color-text: #424242;">
+                    <header class="cell-header">
+                        <div class="cell-title">
+                            Cyan
+                        </div>
+                    </header>
+                    <main class="cell-content">
+                        Every size on the page is calculated as a multiple of the spacing unit, so setting the property to a different value resizes all elements.
+                    </main>
+                    <div class="cell-actions">
+                        <button class="picker-button">
+                            Use this color
+                            <div class="ripple"></div>
+                        </button>
+                    </div>
+                </div>
+                <div class="cell" style="--primary-color: #009688; --primary-color-text: #FFF;">
+                    <header class="cell-header">
+                        <div class="cell-title">
+                            Teal
+                        </div>
+                    </header>
+                    <main class="cell-content">
+                        Changing the number of columns is done by recalculating the relative size of cells on the grid.
+                    </main>
+                    <div class="cell-actions">
+                        <button class="picker-button">
+                            Use this color
+                            <div class="ripple"></div>
+                        </button>
+                    </div>
+                </div>
+                <div class="cell" style="--primary-color: #4CAF50; --primary-color-text: #424242;">
+                    <header class="cell-header">
+                        <div class="cell-title">
+                            Green
+                        </div>
+                    </header>
+                    <main class="cell-content">
+                        Margins adjusts both the spacing around the grid and the gutters inside of it.
+                    </main>
+                    <div class="cell-actions">
+                        <button class="picker-button">
+                            Use this color
+                            <div class="ripple"></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="status"></div>
+        <pre id="log"></pre>
+    </div>
 </body>
 
 </html>

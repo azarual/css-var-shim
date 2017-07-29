@@ -4,15 +4,19 @@
     "description": "A shim to provide basic functionality to IE/Edge for changing custom CSS properties at runtime.",
     "main": "index.js",
     "scripts": {
-        "build:css": "postcss -c postcss.config.js -d ./ -o app.css src/css/*.css",
-        "build:js": "uglifyjs src/js/app.js -o css-var-shim.js"
+      "uglify": "uglifyjs src/js/index.js css-var-map.js > css-var-shim.js --wrap cssVarShim",
+      "build:css": "postcss -c postcss.config.js -d ./ -o app.css src/css/*.css",
+      "build:js": "npm run uglify",
+      "build": "npm run build:css && npm run build:js",
+      "watch": "watch 'npm run build' ./src"
     },
     "repository": "https://github.com/luwes/css-var-shim",
     "author": "Wesley Luyten",
     "license": "MIT",
     "devDependencies": {
-        "postcss-cli": "^4.1.0",
-        "postcss-var-map": "^0.0.1",
-        "uglify-js": "^3.0.25"
+      "postcss-cli": "^4.1.0",
+      "postcss-var-map": "^0.0.1",
+      "uglify-js": "^3.0.25",
+      "watch": "^1.0.2"
     }
 }
