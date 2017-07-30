@@ -1085,9 +1085,9 @@ postcss-reporter@^4.0.0:
     lodash "^4.1.0"
     log-symbols "^1.0.2"
 
-postcss-var-map@^0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/postcss-var-map/-/postcss-var-map-0.0.3.tgz#fecdbcd1a4b87ec9ba998c2c076b7af1e6d28d52"
+postcss-var-map@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/postcss-var-map/-/postcss-var-map-0.2.0.tgz#4be3d735a1503e6fcc7af4dfbd672bc31bc98424"
   dependencies:
     postcss "^6.0.1"
 
