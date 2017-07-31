@@ -12,6 +12,7 @@
     </style>
     <script>
         var cssVarSupport = window.CSS && CSS.supports && CSS.supports('--a', 0);
+        cssVarSupport = false;
         if (!cssVarSupport) {
             var cssVarScript = document.createElement('script');
             cssVarScript.src = 'css-var-shim.js';
@@ -54,6 +55,9 @@
         window.addEventListener('load', function() {
 
           //document.documentElement.style.setProperty('--primary-color', '#099010');
+
+          var cell = document.querySelector('.cell');
+          cell.style.setProperty('--primary-color', '#099010', null, cell);
 
           // Get the styles for the document.
           // This is where we've chosen to store all the global variables we use.

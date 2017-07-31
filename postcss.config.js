@@ -1,9 +1,10 @@
 module.exports = {
   plugins: [
     require('postcss-var-map')({
-        file: 'css-var-map.js',
+        file: 'example/css-var-map.js',
         prefix: 'onCssVarMap(',
-        suffix: ');'
+        suffix: ');',
+        remove: true
     })
   ]
 }
