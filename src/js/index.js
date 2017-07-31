@@ -6,7 +6,7 @@ window.cssVarCache = {
 function onCssVarMap(cssVarMap) {
 
   var originalSetProperty = CSSStyleDeclaration.prototype.setProperty;
-  CSSStyleDeclaration.prototype.setProperty = function (prop, value, priority) {
+  CSSStyleDeclaration.prototype.setProperty = function (prop, value, priority, element) {
     if (/^--/.test(prop)) {
       var cacheMap = window.cssVarCache.setVars;
       cacheMap[prop] = value;
@@ -19,8 +19,17 @@ function onCssVarMap(cssVarMap) {
         if (varDecls) {
           varDecls.forEach(niceArguments(function (mapProp, mapValue, mapPriority) {
             var replacedValue = replaceVarsInValue(mapValue, cacheMap);
-            // IE doesn't like undefined as the important argument
-            rule.style.setProperty(mapProp, replacedValue, mapPriority || null);
+            if (element) {
+              document.querySelectorAll(selector).forEach(function (node) {
+                if (element.contains(node)) {
+                  // IE doesn't like undefined as the important argument
+                  node.style.setProperty(mapProp, replacedValue, mapPriority || null);
+                }
+              });
+            } else {
+              // IE doesn't like undefined as the important argument
+              rule.style.setProperty(mapProp, replacedValue, mapPriority || null);
+            }
           }));
         }
       });
