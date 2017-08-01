@@ -10,7 +10,8 @@
         background: #fff;
       }
     </style>
-    <script>
+    <script src="css-var-shim.js"></script>
+<!--     <script>
         var cssVarSupport = window.CSS && CSS.supports && CSS.supports('--a', 0);
         cssVarSupport = false;
         if (!cssVarSupport) {
@@ -20,7 +21,7 @@
             var firstScript = document.getElementsByTagName('script')[0];
             firstScript.parentNode.insertBefore(cssVarScript, firstScript);
         }
-    </script>
+    </script> -->
     <script>
 
         // Auxiliary method. Retrieves and sanitises the value of a custom property.

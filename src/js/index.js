@@ -1,16 +1,39 @@
 
-window.cssVarCache = {
-  setVars: {}
-};
+window.cssVarCache = {};
 
 function onCssVarMap(cssVarMap) {
+  // var cssVarSupport = window.CSS && CSS.supports && CSS.supports('--a', 0);
+  // if (cssVarSupport) {
+  //   return;
+  // }
+
+  function init() {
+    // Sets all the css vars that are defined in the stylesheet.
+    cssVarMap.setVars.forEach(niceArguments(setVar));
+
+    ready(function (event) {
+      // Set all defined inline css vars, using data-style attribute.
+      var varElements = document.querySelectorAll('[data-style*="--"]');
+      arrayFrom(varElements).forEach(function (varElement) {
+        var dataStyle = varElement.getAttribute('data-style');
+        var matchVar = /(--[^:]+)\s*:\s*([^;]+)/g;
+        var varMatches = getMatches(dataStyle, matchVar);
+        if (varMatches.length) {
+          varMatches.forEach(niceArguments(function (match, prop, value) {
+            // To target a specific element a fourth element argument is added
+            // to the `style.setProperty` method. There is no other way to
+            // retrieve the element in the overriden method.
+            varElement.style.setProperty(prop, value, null, varElement);
+          }));
+        }
+      });
+    });
+  }
 
   var originalSetProperty = CSSStyleDeclaration.prototype.setProperty;
   CSSStyleDeclaration.prototype.setProperty = function (prop, value, priority, element) {
     if (/^--/.test(prop)) {
-      var cacheMap = window.cssVarCache.setVars;
-      cacheMap[prop] = value;
-
+      cssVarCache[prop] = value;
       var count = makeCount();
       var cssRules = getCssRules(document.styleSheets);
       cssRules.forEach(function (rule) {
@@ -18,9 +41,9 @@ function onCssVarMap(cssVarMap) {
         var varDecls = objectResolve(cssVarMap.getVars, [prop, selector, count(selector)]);
         if (varDecls) {
           varDecls.forEach(niceArguments(function (mapProp, mapValue, mapPriority) {
-            var replacedValue = replaceVarsInValue(mapValue, cacheMap);
+            var replacedValue = replaceVarsInValue(mapValue, cssVarCache);
             if (element) {
-              document.querySelectorAll(selector).forEach(function (node) {
+              arrayFrom(document.querySelectorAll(selector)).forEach(function (node) {
                 if (element.contains(node)) {
                   // IE doesn't like undefined as the important argument
                   node.style.setProperty(mapProp, replacedValue, mapPriority || null);
@@ -60,7 +83,7 @@ function onCssVarMap(cssVarMap) {
     if (!selector || selector !== ':root') {
       elements = document.querySelectorAll(selector);
     }
-    elements.forEach(function (element) {
+    arrayFrom(elements).forEach(function (element) {
       element.style.setProperty(prop, value, important || null);
     });
   }
@@ -105,5 +128,13 @@ function onCssVarMap(cssVarMap) {
     return [].slice.call(object);
   }
 
-  cssVarMap.setVars.forEach(niceArguments(setVar));
+  function ready(fn) {
+    if (document.readyState !== "loading") {
+      fn();
+    } else {
+      document.addEventListener('DOMContentLoaded', fn);
+    }
+  }
+
+  init();
 }
