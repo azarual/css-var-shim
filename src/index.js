@@ -1,19 +1,20 @@
+import { qsa, getCssRules, getMatches, niceArguments, objectResolve, makeCount, arrayFrom, ready } from './utils';
 
-window.cssVarCache = {};
+function cssVarShim(cssVarMap) {
+  var cssVarSupport = window.CSS && CSS.supports && CSS.supports('--a', 0);
+  if (cssVarSupport) {
+    return;
+  }
 
-function onCssVarMap(cssVarMap) {
-  // var cssVarSupport = window.CSS && CSS.supports && CSS.supports('--a', 0);
-  // if (cssVarSupport) {
-  //   return;
-  // }
+  window.cssVarCache = {};
 
   function init() {
     // Sets all the css vars that are defined in the stylesheet.
     cssVarMap.setVars.forEach(niceArguments(setVar));
 
-    ready(function (event) {
+    ready(function () {
       // Set all defined inline css vars, using data-style attribute.
-      var varElements = document.querySelectorAll('[data-style*="--"]');
+      var varElements = qsa('[data-style*="--"]');
       arrayFrom(varElements).forEach(function (varElement) {
         var dataStyle = varElement.getAttribute('data-style');
         var matchVar = /(--[^:]+)\s*:\s*([^;]+)/g;
@@ -33,7 +34,7 @@ function onCssVarMap(cssVarMap) {
   var originalSetProperty = CSSStyleDeclaration.prototype.setProperty;
   CSSStyleDeclaration.prototype.setProperty = function (prop, value, priority, element) {
     if (/^--/.test(prop)) {
-      cssVarCache[prop] = value;
+      window.cssVarCache[prop] = value;
       var count = makeCount();
       var cssRules = getCssRules(document.styleSheets);
       cssRules.forEach(function (rule) {
@@ -41,9 +42,9 @@ function onCssVarMap(cssVarMap) {
         var varDecls = objectResolve(cssVarMap.getVars, [prop, selector, count(selector)]);
         if (varDecls) {
           varDecls.forEach(niceArguments(function (mapProp, mapValue, mapPriority) {
-            var replacedValue = replaceVarsInValue(mapValue, cssVarCache);
+            var replacedValue = replaceVarsInValue(mapValue, window.cssVarCache);
             if (element) {
-              arrayFrom(document.querySelectorAll(selector)).forEach(function (node) {
+              arrayFrom(qsa(selector)).forEach(function (node) {
                 if (element.contains(node)) {
                   // IE doesn't like undefined as the important argument
                   node.style.setProperty(mapProp, replacedValue, mapPriority || null);
@@ -78,63 +79,17 @@ function onCssVarMap(cssVarMap) {
     return value;
   }
 
-  function setVar(prop, value, important, selector, selectorIndex) {
+  function setVar(prop, value, important, selector) {
     var elements = [ document.documentElement ];
     if (!selector || selector !== ':root') {
-      elements = document.querySelectorAll(selector);
+      elements = qsa(selector);
     }
     arrayFrom(elements).forEach(function (element) {
-      element.style.setProperty(prop, value, important || null);
+      element.style.setProperty(prop, value, important || null, element);
     });
-  }
-
-  function getCssRules(cssRulesObject) {
-    return arrayFrom(cssRulesObject).reduce(function (prev, curr) {
-      return prev.concat(curr.cssRules ? getCssRules(curr.cssRules) : curr);
-    }, []);
-  }
-
-  function getMatches(str, regex, result) {
-    result = result || [];
-    var match;
-    while ((match = regex.exec(str)) !== null) {
-      result.push(match);
-      regex.lastIndex = match.index + match[0].length;
-    }
-    return result;
-  }
-
-  function niceArguments(fn) {
-    return function (decl) {
-      fn.apply(this, decl);
-    }
-  }
-
-  function objectResolve(obj, props) {
-    return props.reduce(function (prev, curr) {
-      return prev ? prev[curr] : undefined
-    }, obj);
-  }
-
-  function makeCount(countMap) {
-      countMap = countMap || {};
-      return function (key) {
-          countMap[key] = isNaN(countMap[key]) ? 0 : countMap[key] + 1;
-          return countMap[key];
-      };
-  };
-
-  function arrayFrom(object) {
-    return [].slice.call(object);
-  }
-
-  function ready(fn) {
-    if (document.readyState !== "loading") {
-      fn();
-    } else {
-      document.addEventListener('DOMContentLoaded', fn);
-    }
   }
 
   init();
 }
+
+export default cssVarShim;
