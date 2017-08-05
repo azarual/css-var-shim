@@ -1,6 +1,6 @@
 # CSS Var Shim
 
-A shim to provide basic functionality to IE/Edge for changing custom properties at runtime.
+A shim to provide basic functionality to IE/Edge for changing custom CSS properties (CSS vars) at runtime.
 
-Requires a JS lookup map with used css variables in your stylesheet.  
+This requires a JS lookup map, more info can be found here: 
 https://github.com/luwes/postcss-var-map
