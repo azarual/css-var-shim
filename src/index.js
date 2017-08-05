@@ -85,7 +85,8 @@ function cssVarShim(cssVarMap) {
       elements = qsa(selector);
     }
     arrayFrom(elements).forEach(function (element) {
-      element.style.setProperty(prop, value, important || null, element);
+      var target = element !== document.documentElement ? element : null;
+      element.style.setProperty(prop, value, important || null, target);
     });
   }
 
