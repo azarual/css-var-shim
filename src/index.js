@@ -1,4 +1,4 @@
-import { qsa, getCssRules, getMatches, niceArguments, objectResolve, makeCount, arrayFrom, ready } from './utils';
+import { qsa, getCssRules, getMatches, niceArguments, objectResolve, makeCount, arrayFrom, ready, makeCache, makeKey } from './utils';
 
 function cssVarShim(cssVarMap) {
   var cssVarSupport = window.CSS && CSS.supports && CSS.supports('--a', 0);
@@ -6,7 +6,8 @@ function cssVarShim(cssVarMap) {
     return;
   }
 
-  window.cssVarCache = {};
+  var key = makeKey('wl__uuid');
+  var cache = makeCache();
 
   function init() {
     // Sets all the css vars that are defined in the stylesheet.
@@ -31,10 +32,19 @@ function cssVarShim(cssVarMap) {
     });
   }
 
+  var originalGetPropertyValue = CSSStyleDeclaration.prototype.getPropertyValue;
+  CSSStyleDeclaration.prototype.getPropertyValue = function (prop, element) {
+    if (/^--/.test(prop)) {
+      return getVarValue(prop, element);
+    }
+    return originalGetPropertyValue.call(this, prop);
+  };
+
   var originalSetProperty = CSSStyleDeclaration.prototype.setProperty;
   CSSStyleDeclaration.prototype.setProperty = function (prop, value, priority, element) {
     if (/^--/.test(prop)) {
-      window.cssVarCache[prop] = value;
+      cache(key(prop, element), value);
+
       var count = makeCount();
       var cssRules = getCssRules(document.styleSheets);
       cssRules.forEach(function (rule) {
@@ -42,7 +52,7 @@ function cssVarShim(cssVarMap) {
         var varDecls = objectResolve(cssVarMap.getVars, [prop, selector, count(selector)]);
         if (varDecls) {
           varDecls.forEach(niceArguments(function (mapProp, mapValue, mapPriority) {
-            var replacedValue = replaceVarsInValue(mapValue, window.cssVarCache);
+            var replacedValue = replaceVarsInValue(mapValue, element);
             if (element) {
               arrayFrom(qsa(selector)).forEach(function (node) {
                 if (element.contains(node)) {
@@ -62,21 +72,31 @@ function cssVarShim(cssVarMap) {
     originalSetProperty.call(this, prop, value, priority);
   };
 
-  function replaceVarsInValue(value, map) {
+  function replaceVarsInValue(value, element) {
     var matchGetVar = /--[^\s,)]+/g;
     var getVarMatches = getMatches(value, matchGetVar);
     if (getVarMatches.length) {
       getVarMatches.forEach(function (getVarMatch) {
         var getVar = getVarMatch[0];
-        var getVarValue = objectResolve(map, [getVar]);
-        if (getVarValue) {
+        var varValue = getVarValue(getVar, element);
+        if (varValue) {
           var varRegex = new RegExp('var\\(' + getVar + '(,[^)]+)?\\)');
-          value = value.replace(varRegex, getVarValue);
-          value = replaceVarsInValue(value, map);
+          value = value.replace(varRegex, varValue);
+          value = replaceVarsInValue(value, element);
         }
       });
     }
     return value;
+  }
+
+  function getVarValue(prop, element) {
+    var propValue = cache(key(prop, element));
+    // Go up the tree until a prop value is found
+    while (!propValue && element && element.parentElement) {
+      element = element.parentElement;
+      propValue = cache(key(prop, element));
+    }
+    return propValue;
   }
 
   function setVar(prop, value, important, selector) {

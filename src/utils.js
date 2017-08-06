@@ -34,7 +34,7 @@ export function objectResolve(obj, props) {
 
 export function makeCount(countMap) {
   countMap = countMap || {};
-  return function (key) {
+  return function count(key) {
     countMap[key] = isNaN(countMap[key]) ? 0 : countMap[key] + 1;
     return countMap[key];
   };
@@ -50,4 +50,43 @@ export function ready(fn) {
   } else {
     document.addEventListener('DOMContentLoaded', fn);
   }
+}
+
+export function makeCache() {
+  var cacheMap = {};
+  return function cache(key, value) {
+    if (!key) {
+      return cacheMap;
+    }
+    if (!value) {
+      return cacheMap[key];
+    }
+    cacheMap[key] = value;
+    return value;
+  };
+}
+
+export function makeKey(expando) {
+  return function key() {
+    return arrayFrom(arguments).reduce(function(prev, curr) {
+      if (!curr) {
+        return prev;
+      }
+      if (typeof curr === 'object') {
+        return prev + uniqueId(curr, expando);
+      }
+      return prev + curr;
+    }, '');
+  };
+}
+
+var idCounter = 0;
+
+export function uniqueId(object, expando) {
+  if (object[expando]) {
+    return object[expando];
+  }
+  var id = ++idCounter;
+  object[expando] = id;
+  return id;
 }
