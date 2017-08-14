@@ -1,6 +1,10 @@
 # Change Log
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.2.1 - 2017-08-14
+### Added
+- Added `cleanCss` method handling quotes in selectors
+
 ## 0.2.0 - 2017-07-16
 ### Added
 - Added support for `element.style.getPropertyValue()`

@@ -1,4 +1,4 @@
-import { qsa, getCssRules, getMatches, niceArguments, objectResolve, makeCount, arrayFrom, ready, makeCache, makeKey } from './utils';
+import { qsa, getCssRules, getMatches, niceArguments, objectResolve, makeCount, arrayFrom, ready, makeCache, makeKey, cleanCss } from './utils';
 
 function cssVarShim(cssVarMap) {
   var cssVarSupport = window.CSS && CSS.supports && CSS.supports('--a', 0);
@@ -48,7 +48,7 @@ function cssVarShim(cssVarMap) {
       var count = makeCount();
       var cssRules = getCssRules(document.styleSheets);
       cssRules.forEach(function (rule) {
-        var selector = rule.selectorText;
+        var selector = cleanCss(rule.selectorText);
         var varDecls = objectResolve(cssVarMap.getVars, [prop, selector, count(selector)]);
         if (varDecls) {
           varDecls.forEach(niceArguments(function (mapProp, mapValue, mapPriority) {
