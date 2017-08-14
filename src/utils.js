@@ -92,5 +92,8 @@ export function uniqueId(object, expando) {
 }
 
 export function cleanCss(css) {
-  return css.replace(/\s+/g, ' ').replace(/"/g, '\'').trim();
+  if (css) {
+    return css.replace(/\s+/g, ' ').replace(/"/g, '\'').trim();
+  }
+  return '';
 }
