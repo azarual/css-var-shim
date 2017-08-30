@@ -49,7 +49,20 @@ function cssVarShim(cssVarMap) {
       var cssRules = getCssRules(document.styleSheets);
       cssRules.forEach(function (rule) {
         var selector = cleanCss(rule.selectorText);
-        var varDecls = objectResolve(cssVarMap.getVars, [prop, selector, count(selector)]);
+        var selectorCount = count(selector);
+        var varDecls = objectResolve(cssVarMap.getVars, [prop, selector, selectorCount]);
+        if (!varDecls) {
+          // IE11 reverses multiple classes in the selectors
+          var multipleClassMatches = getMatches(selector, /\.[\w-]+(\.[\w-]+)+/g);
+          if (multipleClassMatches.length) {
+            multipleClassMatches.forEach(function (mcMatch) {
+              var mc = mcMatch[0];
+              var cm = '.' + mc.slice(1).split('.').reverse().join('.');
+              selector = selector.replace(mc, cm);
+            });
+            varDecls = objectResolve(cssVarMap.getVars, [prop, selector, selectorCount]);
+          }
+        }
         if (varDecls) {
           varDecls.forEach(niceArguments(function (mapProp, mapValue, mapPriority) {
             var replacedValue = replaceVarsInValue(mapValue, element);
