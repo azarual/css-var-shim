@@ -4,6 +4,15 @@ export function qsa(selector, element) {
   return element.querySelectorAll(selector);
 }
 
+export function getSheetsByName(sheets, cssFileName) {
+  if (cssFileName) {
+    return arrayFrom(sheets).filter(function (sheet) {
+      return sheet.href && sheet.href.indexOf(cssFileName) !== -1;
+    });
+  }
+  return arrayFrom(sheets);
+}
+
 export function getCssRules(cssRulesObject) {
   return arrayFrom(cssRulesObject).reduce(function (prev, curr) {
     return prev.concat(curr.cssRules ? getCssRules(curr.cssRules) : curr);

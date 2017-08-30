@@ -1,6 +1,6 @@
 {
   "name": "css-var-shim",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "A shim to provide basic functionality to IE/Edge for changing custom CSS properties at runtime.",
   "main": "index.js",
   "scripts": {

@@ -1,6 +1,10 @@
 # Change Log
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.2.4 - 2017-08-30
+### Added
+- Added stylesheet filter by css file name
+
 ## 0.2.3 - 2017-08-30
 ### Added
 - Added extra lookup with reversed multiple classes selector 

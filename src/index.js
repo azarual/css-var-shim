@@ -1,6 +1,6 @@
-import { qsa, getCssRules, getMatches, niceArguments, objectResolve, makeCount, arrayFrom, ready, makeCache, makeKey, cleanCss } from './utils';
+import { qsa, getCssRules, getSheetsByName, getMatches, niceArguments, objectResolve, makeCount, arrayFrom, ready, makeCache, makeKey, cleanCss } from './utils';
 
-function cssVarShim(cssVarMap) {
+function cssVarShim(cssVarMap, cssFileName) {
   var cssVarSupport = window.CSS && CSS.supports && CSS.supports('--a', 0);
   if (cssVarSupport) {
     return;
@@ -46,7 +46,7 @@ function cssVarShim(cssVarMap) {
       cache(key(prop, element), value);
 
       var count = makeCount();
-      var cssRules = getCssRules(document.styleSheets);
+      var cssRules = getCssRules(getSheetsByName(document.styleSheets, cssFileName));
       cssRules.forEach(function (rule) {
         var selector = cleanCss(rule.selectorText);
         var selectorCount = count(selector);
