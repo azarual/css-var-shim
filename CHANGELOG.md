@@ -1,6 +1,11 @@
 # Change Log
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.2.5 - 2018-06-18
+### Changed
+- Defer processing after ready event
+- Evaluate value from the context of the element that gets the style, rather from the context of the element that sets the variable
+
 ## 0.2.4 - 2017-08-30
 ### Added
 - Added stylesheet filter by css file name
