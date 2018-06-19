@@ -10,10 +10,10 @@ function cssVarShim(cssVarMap, cssFileName) {
   var cache = makeCache();
 
   function init() {
-    // Sets all the css vars that are defined in the stylesheet.
-    cssVarMap.setVars.forEach(niceArguments(setVar));
-
     ready(function () {
+      // Sets all the css vars that are defined in the stylesheet.
+      cssVarMap.setVars.forEach(niceArguments(setVar));
+
       // Set all defined inline css vars, using data-style attribute.
       var varElements = qsa('[data-style*="--"]');
       arrayFrom(varElements).forEach(function (varElement) {
@@ -65,15 +65,16 @@ function cssVarShim(cssVarMap, cssFileName) {
         }
         if (varDecls) {
           varDecls.forEach(niceArguments(function (mapProp, mapValue, mapPriority) {
-            var replacedValue = replaceVarsInValue(mapValue, element);
             if (element) {
               arrayFrom(qsa(selector)).forEach(function (node) {
                 if (element.contains(node)) {
+                  var replacedValue = replaceVarsInValue(mapValue, node);
                   // IE doesn't like undefined as the important argument
                   node.style.setProperty(mapProp, replacedValue, mapPriority || null);
                 }
               });
             } else {
+              var replacedValue = replaceVarsInValue(mapValue, element);
               // IE doesn't like undefined as the important argument
               rule.style.setProperty(mapProp, replacedValue, mapPriority || null);
             }
